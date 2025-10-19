@@ -1,0 +1,28 @@
+{
+  "users": [
+    {
+      "email": "duong@example.com",
+      "name": "Duong"
+    },
+    {
+      "email": "duong@example.com",
+      "name": "Duong"
+    },
+    {
+      "email": "mai@example.com",
+      "name": "Mai"
+    },
+    {
+      "email": "thanh@example.com",
+      "name": "Thanh"
+    },
+    {
+      "email": "nhung@example.com",
+      "name": "Nhung"
+    },
+    {
+      "email": "Thanh2004@example.com",
+      "name": "Chi Thanh"
+    }
+  ]
+}
