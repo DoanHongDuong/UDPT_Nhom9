@@ -103,6 +103,10 @@
       border-bottom: 1px dashed #ccc;
       padding-bottom: 5px;
     }
+    footer{
+      text-align: center;
+      
+    }
   </style>
 </head>
 <body>
@@ -134,12 +138,14 @@
     <h2>Nhật ký hoạt động</h2>
     <div id="logBox"></div>
   </section>
-
+  <footer>
+    <p>Bài tập lớn Ứng dụng phân tán</p>
+  </footer>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       loadNodes();
       loadUsers();
-      addLog("🟢 Dashboard khởi động...");
+      addLog("Dashboard khởi động...");
     });
 
     // Load trạng thái node
@@ -155,9 +161,9 @@
             div.textContent = `${node.name}\n${node.alive ? 'Online' : 'Offline'}`;
             container.appendChild(div);
           });
-          addLog("🔍 Cập nhật trạng thái node thành công.");
+          addLog("Cập nhật trạng thái node thành công.");
         })
-        .catch(() => addLog("⚠️ Không thể tải trạng thái node!"));
+        .catch(() => addLog("Không thể tải trạng thái node!"));
     }
 
     // Load danh sách người dùng
@@ -172,9 +178,9 @@
             row.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
             tbody.appendChild(row);
           });
-          addLog("📥 Tải danh sách người dùng thành công.");
+          addLog("Tải danh sách người dùng thành công.");
         })
-        .catch(() => addLog("⚠️ Không thể tải danh sách người dùng!"));
+        .catch(() => addLog("Không thể tải danh sách người dùng!"));
     }
 
     // Thêm người dùng
@@ -195,23 +201,22 @@
       .then(res => res.json())
       .then(data => {
         if (data.error) {
-          showNotification("❌ Lỗi: " + data.error, "error");
-          addLog("❌ Lỗi thêm người dùng: " + data.error);
+          showNotification("Lỗi: " + data.error, "error");
+          addLog("Lỗi thêm người dùng: " + data.error);
         } else {
-          showNotification("✅ Thêm người dùng thành công và replicate sang các node!", "success");
-          addLog(`👤 Đã thêm người dùng: ${name} (${email})`);
+          showNotification("Thêm người dùng thành công và replicate sang các node!", "success");
+          addLog(`Đã thêm người dùng: ${name} (${email})`);
           loadUsers();
           document.getElementById('name').value = '';
           document.getElementById('email').value = '';
         }
       })
       .catch(() => {
-        showNotification("❌ Không thể kết nối tới server!", "error");
-        addLog("🚫 Kết nối server thất bại khi thêm người dùng.");
+        showNotification("Không thể kết nối tới server!", "error");
+        addLog("Kết nối server thất bại khi thêm người dùng.");
       });
     }
 
-    // Hiển thị thông báo
     function showNotification(message, type) {
       const box = document.getElementById('notification');
       box.textContent = message;
@@ -224,7 +229,6 @@
       }, 4000);
     }
 
-    // Ghi log vào khung logBox
     function addLog(message) {
       const logBox = document.getElementById('logBox');
       const entry = document.createElement('div');
@@ -250,5 +254,6 @@ function loadLogs() {
     });
 }
   </script>
+  
 </body>
 </html>

@@ -1,51 +1,45 @@
 import requests
-import time
+import json
+from datetime import datetime
 
-# Danh sách các node trong hệ thống
 NODES = [
-    "http://127.0.0.1:5000",
-    "http://127.0.0.1:5001",
-    "http://127.0.0.1:5002"
+    "http://127.0.0.1:5000/health",
+    "http://127.0.0.1:5001/health",
+    "http://127.0.0.1:5002/health"
 ]
 
-# Node chính ban đầu
-current_master = "http://127.0.0.1:5000"
+LOG_FILE = "system_logs.json"
 
+def write_log(event):
+    log_entry = {
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "event": event
+    }
+    try:
+        with open(LOG_FILE, "r") as f:
+            logs = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        logs = []
 
-# =========================
-# Kiểm tra node đang sống
-# =========================
+    logs.insert(0, log_entry)
+    with open(LOG_FILE, "w") as f:
+        json.dump(logs[:100], f, indent=2)
+
 def check_nodes():
+    """Kiểm tra node còn sống"""
     alive = []
     for node in NODES:
         try:
-            res = requests.get(f"{node}/health", timeout=2)
+            res = requests.get(node, timeout=3)
             if res.status_code == 200:
                 alive.append(node)
-        except:
-            pass
-    return alive
-
-
-# =========================
-# Giám sát failover
-# =========================
-def failover_monitor():
-    global current_master
-    while True:
-        alive = check_nodes()
-        print("Alive nodes:", alive)
-        print("Current master:", current_master)
-
-        if current_master not in alive:
-            print(f"⚠️ {current_master} is DOWN! Initiating failover...")
-            if alive:
-                current_master = alive[0]
-                print(f"✅ Failover complete — New master: {current_master}")
+                write_log(f"Node {node} hoạt động bình thường.")
             else:
-                print("🚨 No nodes alive! System down!")
+                write_log(f"Node {node} phản hồi bất thường ({res.status_code}).")
+        except requests.exceptions.RequestException:
+            write_log(f"Node {node} không phản hồi (offline).")
 
-        time.sleep(5)
-
-if __name__ == "__main__":
-    failover_monitor()
+    # Giả lập failover nếu Primary (port 5000) bị down
+    if "http://127.0.0.1:5000/health" not in alive:
+        write_log("Primary node bị lỗi — kích hoạt failover sang node khác.")
+    return alive
