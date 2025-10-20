@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Distributed System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f8fa;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff;
+    }
+
+    section {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 80%;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    #nodeStatus div {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 6px;
+      display: inline-block;
+      width: 120px;
+      text-align: center;
+      color: white;
+    }
+
+    .node-up { background-color: #28a745; }
+    .node-down { background-color: #dc3545; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    input {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 8px 15px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #notification {
+      width: 80%;
+      margin: 10px auto;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      transition: opacity 0.5s ease;
+      display: none;
+    }
+
+    #notification.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    #notification.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    #logBox {
+      background-color: #f1f1f1;
+      padding: 15px;
+      border-radius: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .log-entry {
+      margin: 5px 0;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dashboard - Hệ thống phân tán</h1>
+
+  <section id="nodes">
+    <h2>Trạng thái Node</h2>
+    <div id="nodeStatus"></div>
+  </section>
+
+  <section id="notification"></section>
+
+  <section id="users">
+    <h2>Danh sách người dùng</h2>
+    <table id="userTable">
+      <thead>
+        <tr><th>Tên</th><th>Email</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>Thêm người dùng mới</h3>
+    <input id="name" type="text" placeholder="Tên người dùng">
+    <input id="email" type="email" placeholder="Email">
+    <button onclick="addUser()">Thêm</button>
+  </section>
+
+  <section id="logs">
+    <h2>Nhật ký hoạt động</h2>
+    <div id="logBox"></div>
+  </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      loadNodes();
+      loadUsers();
+      addLog("🟢 Dashboard khởi động...");
+    });
+
+    // Load trạng thái node
+    function loadNodes() {
+      fetch('/api/nodes')
+        .then(res => res.json())
+        .then(nodes => {
+          const container = document.getElementById('nodeStatus');
+          container.innerHTML = '';
+          nodes.forEach(node => {
+            const div = document.createElement('div');
+            div.className = node.alive ? 'node-up' : 'node-down';
+            div.textContent = `${node.name}\n${node.alive ? 'Online' : 'Offline'}`;
+            container.appendChild(div);
+          });
+          addLog("🔍 Cập nhật trạng thái node thành công.");
+        })
+        .catch(() => addLog("⚠️ Không thể tải trạng thái node!"));
+    }
+
+    // Load danh sách người dùng
+    function loadUsers() {
+      fetch('/api/users')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector('#userTable tbody');
+          tbody.innerHTML = '';
+          data.users.forEach(u => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
+            tbody.appendChild(row);
+          });
+          addLog("📥 Tải danh sách người dùng thành công.");
+        })
+        .catch(() => addLog("⚠️ Không thể tải danh sách người dùng!"));
+    }
+
+    // Thêm người dùng
+    function addUser() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!name || !email) {
+        showNotification("Vui lòng nhập đầy đủ tên và email!", "error");
+        return;
+      }
+
+      fetch('/api/add_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          showNotification("❌ Lỗi: " + data.error, "error");
+          addLog("❌ Lỗi thêm người dùng: " + data.error);
+        } else {
+          showNotification("✅ Thêm người dùng thành công và replicate sang các node!", "success");
+          addLog(`👤 Đã thêm người dùng: ${name} (${email})`);
+          loadUsers();
+          document.getElementById('name').value = '';
+          document.getElementById('email').value = '';
+        }
+      })
+      .catch(() => {
+        showNotification("❌ Không thể kết nối tới server!", "error");
+        addLog("🚫 Kết nối server thất bại khi thêm người dùng.");
+      });
+    }
+
+    // Hiển thị thông báo
+    function showNotification(message, type) {
+      const box = document.getElementById('notification');
+      box.textContent = message;
+      box.className = type;
+      box.style.display = 'block';
+      box.style.opacity = '1';
+      setTimeout(() => {
+        box.style.opacity = '0';
+        setTimeout(() => { box.style.display = 'none'; }, 500);
+      }, 4000);
+    }
+
+    // Ghi log vào khung logBox
+    function addLog(message) {
+      const logBox = document.getElementById('logBox');
+      const entry = document.createElement('div');
+      const now = new Date().toLocaleTimeString();
+      entry.className = 'log-entry';
+      entry.textContent = `[${now}] ${message}`;
+      logBox.prepend(entry);
+    }
+    setInterval(loadLogs, 5000);
+
+function loadLogs() {
+  fetch('/api/logs')
+    .then(res => res.json())
+    .then(logs => {
+      const logBox = document.getElementById('logBox');
+      logBox.innerHTML = '';
+      logs.forEach(l => {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.textContent = `[${l.time}] ${l.event}`;
+        logBox.appendChild(entry);
+      });
+    });
+}
+  </script>
+</body>
+</html>
