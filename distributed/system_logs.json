@@ -1,0 +1,90 @@
+[
+  {
+    "time": "2025-10-20 23:47:19",
+    "event": "Node http://127.0.0.1:5002/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:47:19",
+    "event": "Node http://127.0.0.1:5001/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:47:19",
+    "event": "Node http://127.0.0.1:5000/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:46:59",
+    "event": "Node http://127.0.0.1:5002/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:46:59",
+    "event": "Node http://127.0.0.1:5001/health kh\u00f4ng ph\u1ea3n h\u1ed3i (offline)."
+  },
+  {
+    "time": "2025-10-20 23:46:57",
+    "event": "Node http://127.0.0.1:5000/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:46:50",
+    "event": "Node http://127.0.0.1:5002/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:46:50",
+    "event": "Node http://127.0.0.1:5001/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:46:50",
+    "event": "Node http://127.0.0.1:5000/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:46:00",
+    "event": "Node http://127.0.0.1:5002/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:46:00",
+    "event": "Node http://127.0.0.1:5001/health kh\u00f4ng ph\u1ea3n h\u1ed3i (offline)."
+  },
+  {
+    "time": "2025-10-20 23:45:58",
+    "event": "Node http://127.0.0.1:5000/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:42:53",
+    "event": "\u0110\u00e3 th\u00eam ng\u01b0\u1eddi d\u00f9ng m\u1edbi: Nhung (hehe@gmail.com)"
+  },
+  {
+    "time": "2025-10-20 23:42:53",
+    "event": "Replication th\u00e0nh c\u00f4ng t\u1edbi http://127.0.0.1:5002/replica"
+  },
+  {
+    "time": "2025-10-20 23:42:53",
+    "event": "Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i t\u1edbi http://127.0.0.1:5001/replica"
+  },
+  {
+    "time": "2025-10-20 23:42:51",
+    "event": "\u0110\u00e3 th\u00eam ng\u01b0\u1eddi d\u00f9ng m\u1edbi: Nhung (hehe@gmail.com)"
+  },
+  {
+    "time": "2025-10-20 23:42:51",
+    "event": "Replication th\u00e0nh c\u00f4ng t\u1edbi http://127.0.0.1:5002/replica"
+  },
+  {
+    "time": "2025-10-20 23:42:51",
+    "event": "Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i t\u1edbi http://127.0.0.1:5001/replica"
+  },
+  {
+    "time": "2025-10-20 23:42:20",
+    "event": "Primary node b\u1ecb l\u1ed7i \u2014 k\u00edch ho\u1ea1t failover sang node kh\u00e1c."
+  },
+  {
+    "time": "2025-10-20 23:42:20",
+    "event": "Node http://127.0.0.1:5002/health ho\u1ea1t \u0111\u1ed9ng b\u00ecnh th\u01b0\u1eddng."
+  },
+  {
+    "time": "2025-10-20 23:42:20",
+    "event": "Node http://127.0.0.1:5001/health kh\u00f4ng ph\u1ea3n h\u1ed3i (offline)."
+  },
+  {
+    "time": "2025-10-20 23:42:18",
+    "event": "Node http://127.0.0.1:5000/health ph\u1ea3n h\u1ed3i b\u1ea5t th\u01b0\u1eddng (404)."
+  }
+]

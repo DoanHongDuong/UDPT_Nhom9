@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - Distributed System</title>
@@ -22,7 +23,7 @@
       margin: 20px auto;
       width: 80%;
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     #nodeStatus div {
@@ -35,15 +36,26 @@
       color: white;
     }
 
-    .node-up { background-color: #28a745; }
-    .node-down { background-color: #dc3545; }
+    .node-up {
+      background-color: #28a745;
+    }
+
+    .node-up.primary {
+      background-color: #007bff;
+      border: 2px solid #0056b3;
+    }
+
+    .node-down {
+      background-color: #dc3545;
+    }
 
     table {
       width: 100%;
       border-collapse: collapse;
     }
 
-    th, td {
+    th,
+    td {
       padding: 8px;
       border: 1px solid #ddd;
       text-align: center;
@@ -103,12 +115,14 @@
       border-bottom: 1px dashed #ccc;
       padding-bottom: 5px;
     }
-    footer{
+
+    footer {
       text-align: center;
-      
+
     }
   </style>
 </head>
+
 <body>
   <h1>Dashboard - Hệ thống phân tán</h1>
 
@@ -123,7 +137,10 @@
     <h2>Danh sách người dùng</h2>
     <table id="userTable">
       <thead>
-        <tr><th>Tên</th><th>Email</th></tr>
+        <tr>
+          <th>Tên</th>
+          <th>Email</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -143,12 +160,19 @@
   </footer>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      loadNodes();
-      loadUsers();
-      addLog("Dashboard khởi động...");
+      refreshAll();
+
+      // Làm mới dashboard mỗi 3 giây
+      setInterval(refreshAll, 3000);
     });
 
-    // Load trạng thái node
+    function refreshAll() {
+      loadNodes();
+      loadUsers();
+      loadLogs();
+    }
+
+    // Load trạng thái node 
     function loadNodes() {
       fetch('/api/nodes')
         .then(res => res.json())
@@ -157,16 +181,21 @@
           container.innerHTML = '';
           nodes.forEach(node => {
             const div = document.createElement('div');
-            div.className = node.alive ? 'node-up' : 'node-down';
-            div.textContent = `${node.name}\n${node.alive ? 'Online' : 'Offline'}`;
+
+            let statusClass = node.alive ? 'node-up' : 'node-down';
+            if (node.role === 'PRIMARY') {
+              statusClass += ' primary';
+            }
+
+            div.className = statusClass;
+            div.textContent = `${node.name} (${node.role})`; // Hiển thị tên và vai trò
             container.appendChild(div);
           });
-          addLog("Cập nhật trạng thái node thành công.");
         })
-        .catch(() => addLog("Không thể tải trạng thái node!"));
+        .catch(() => addLog("Không thể tải trạng thái node!")); // Dùng addLog của bạn
     }
 
-    // Load danh sách người dùng
+    // Load danh sách người dùng (Giữ nguyên)
     function loadUsers() {
       fetch('/api/users')
         .then(res => res.json())
@@ -178,12 +207,29 @@
             row.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
             tbody.appendChild(row);
           });
-          addLog("Tải danh sách người dùng thành công.");
         })
         .catch(() => addLog("Không thể tải danh sách người dùng!"));
     }
 
-    // Thêm người dùng
+    // Load logs từ server 
+    function loadLogs() {
+      fetch('/api/logs')
+        .then(res => res.json())
+        .then(logs => {
+          const logBox = document.getElementById('logBox');
+          logBox.innerHTML = ''; // Xóa log cũ
+          logs.forEach(l => {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            // Định dạng log mới từ server python
+            entry.textContent = `[${l.time}] [${l.role}] ${l.event}`;
+            logBox.appendChild(entry); // Dùng append để giữ đúng thứ tự (cũ nhất ở trên)
+          });
+        })
+        .catch(() => console.error("Không thể tải logs từ server.")); // Ghi lỗi ra console
+    }
+
+    // Thêm người dùng (Giữ nguyên)
     function addUser() {
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
@@ -198,25 +244,33 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          showNotification("Lỗi: " + data.error, "error");
-          addLog("Lỗi thêm người dùng: " + data.error);
-        } else {
-          showNotification("Thêm người dùng thành công và replicate sang các node!", "success");
-          addLog(`Đã thêm người dùng: ${name} (${email})`);
-          loadUsers();
-          document.getElementById('name').value = '';
-          document.getElementById('email').value = '';
-        }
-      })
-      .catch(() => {
-        showNotification("Không thể kết nối tới server!", "error");
-        addLog("Kết nối server thất bại khi thêm người dùng.");
-      });
+        .then(res => {
+          // Kiểm tra nếu server trả về lỗi (ví dụ 503, 504)
+          if (!res.ok) {
+            // Ném lỗi để nhảy xuống .catch
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (data.error) {
+            showNotification("Lỗi: " + data.error, "error");
+            addLog("Lỗi thêm người dùng: " + data.error);
+          } else {
+            showNotification("Thêm người dùng thành công!", "success");
+            addLog(`Đã thêm người dùng: ${name} (${email})`);
+            loadUsers(); // Tải lại danh sách user sau khi thêm
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+          }
+        })
+        .catch((error) => {
+          showNotification("Không thể kết nối tới server! Vui lòng thử lại.", "error");
+          addLog("Kết nối server thất bại khi thêm người dùng. " + error.message);
+        });
     }
 
+    // Hiển thị thông báo (Giữ nguyên)
     function showNotification(message, type) {
       const box = document.getElementById('notification');
       box.textContent = message;
@@ -229,31 +283,18 @@
       }, 4000);
     }
 
+    // Thêm log (phía client) 
     function addLog(message) {
       const logBox = document.getElementById('logBox');
       const entry = document.createElement('div');
       const now = new Date().toLocaleTimeString();
-      entry.className = 'log-entry';
-      entry.textContent = `[${now}] ${message}`;
+      entry.className = 'log-entry client-log';
+      entry.textContent = `[${now}] [CLIENT] ${message}`;
       logBox.prepend(entry);
     }
-    setInterval(loadLogs, 5000);
 
-function loadLogs() {
-  fetch('/api/logs')
-    .then(res => res.json())
-    .then(logs => {
-      const logBox = document.getElementById('logBox');
-      logBox.innerHTML = '';
-      logs.forEach(l => {
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.textContent = `[${l.time}] ${l.event}`;
-        logBox.appendChild(entry);
-      });
-    });
-}
   </script>
-  
+
 </body>
+
 </html>

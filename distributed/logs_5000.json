@@ -1,0 +1,27 @@
+[
+  {
+    "time": "2025-10-21 00:41:12",
+    "role": "REPLICA",
+    "event": "Nh\u1eadn v\u00e0 l\u01b0u tr\u1eef d\u1eef li\u1ec7u sao ch\u00e9p cho: Mai"
+  },
+  {
+    "time": "2025-10-21 00:40:21",
+    "role": "REPLICA",
+    "event": "\u0110\u1ed3ng b\u1ed9 th\u00e0nh c\u00f4ng! \u0110\u00e3 t\u1ea3i 2 users."
+  },
+  {
+    "time": "2025-10-21 00:40:21",
+    "role": "REPLICA",
+    "event": "\u0110ang t\u1ea3i d\u1eef li\u1ec7u t\u1eeb Primary http://127.0.0.1:5001..."
+  },
+  {
+    "time": "2025-10-21 00:40:21",
+    "role": "REPLICA",
+    "event": "Node http://127.0.0.1:5001 b\u00e1o Primary l\u00e0: http://127.0.0.1:5001"
+  },
+  {
+    "time": "2025-10-21 00:40:21",
+    "role": "REPLICA",
+    "event": "B\u1eaft \u0111\u1ea7u kh\u1edfi \u0111\u1ed9ng, t\u00ecm Primary \u0111\u1ec3 \u0111\u1ed3ng b\u1ed9..."
+  }
+]
