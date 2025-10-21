@@ -1,16 +1,1 @@
-{
-  "users": [
-    {
-      "name": "Nhung",
-      "email": "hihi@gmail.com"
-    },
-    {
-      "name": "Duong",
-      "email": "hongboi1505@gmail.com"
-    },
-    {
-      "name": "Mai",
-      "email": "duongdoan15052004@gmail.com"
-    }
-  ]
-}
+{"users": [{"email": "hihi@gmail.com", "name": "Nhung"}, {"email": "hongboi1505@gmail.com", "name": "Duong"}, {"email": "duongdoan15052004@gmail.com", "name": "Mai"}, {"name": "Thanh", "email": "thanh@gmail.com"}, {"name": "linh", "email": "123@gmail.com"}], "_default": {"1": {"email": "hongboi1505@gmail.com", "name": "duong"}, "2": {"email": "thanh@gmail.com", "name": "Thanh"}, "3": {"name": "Mai", "email": "mai@gmail.com"}, "4": {"name": "Nhung", "email": "Nhung@gmail.com"}}}
