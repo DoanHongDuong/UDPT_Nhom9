@@ -52,6 +52,8 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 15px;
+      /* Thêm khoảng cách */
     }
 
     th,
@@ -76,6 +78,24 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
+    .search-box {
+      margin-bottom: 10px;
+    }
+
+    .search-box input {
+      margin-right: 5px;
+    }
+
+    .search-box button {
+      margin-right: 5px;
+      background-color: #17a2b8;
+    }
+
+    .search-box button.reset {
+      background-color: #6c757d;
+    }
+
 
     #notification {
       width: 80%;
@@ -135,6 +155,13 @@
 
   <section id="users">
     <h2>Danh sách người dùng</h2>
+
+    <div class="search-box">
+      <input id="search_name" type="text" placeholder="Tìm theo tên...">
+      <button onclick="searchUsers()">Tìm kiếm</button>
+      <button onclick="loadUsers()" class="reset">Hiện tất cả</button>
+    </div>
+
     <table id="userTable">
       <thead>
         <tr>
@@ -164,11 +191,20 @@
 
       // Làm mới dashboard mỗi 3 giây
       setInterval(refreshAll, 3000);
+
+      // THÊM MỚI: Thêm sự kiện nhấn Enter cho ô tìm kiếm
+      document.getElementById('search_name').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          searchUsers();
+        }
+      });
+
+      // Tải danh sách users lần đầu khi mở trang
+      loadUsers();
     });
 
     function refreshAll() {
       loadNodes();
-      loadUsers();
       loadLogs();
     }
 
@@ -192,25 +228,55 @@
             container.appendChild(div);
           });
         })
-        .catch(() => addLog("Không thể tải trạng thái node!")); // Dùng addLog của bạn
+        .catch(() => addLog("Không thể tải trạng thái node!"));
     }
 
-    // Load danh sách người dùng (Giữ nguyên)
+    function updateTable(data) {
+      const tbody = document.querySelector('#userTable tbody');
+      tbody.innerHTML = '';
+      if (data.users && data.users.length > 0) {
+        data.users.forEach(u => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
+          tbody.appendChild(row);
+        });
+      } else {
+        // Hiển thị thông báo không tìm thấy
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="2">Không tìm thấy người dùng nào.</td>`;
+        tbody.appendChild(row);
+      }
+    }
+
+    // Load tất cả người dùng (nút "Hiện tất cả")
     function loadUsers() {
       fetch('/api/users')
         .then(res => res.json())
         .then(data => {
-          const tbody = document.querySelector('#userTable tbody');
-          tbody.innerHTML = '';
-          data.users.forEach(u => {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
-            tbody.appendChild(row);
-          });
+          updateTable(data); // Gọi hàm helper
+          document.getElementById('search_name').value = ''; // Xóa nội dung ô tìm kiếm
         })
         .catch(() => addLog("Không thể tải danh sách người dùng!"));
     }
+    // Tìm kiếm người dùng (nút "Tìm kiếm")
+    function searchUsers() {
+      const name = document.getElementById('search_name').value.trim();
+      if (!name) {
+        // Nếu ô tìm kiếm rỗng, cứ tải tất cả
+        loadUsers();
+        return;
+      }
 
+      // Tạo URL an toàn với query parameter
+      const params = new URLSearchParams({ name: name });
+
+      fetch(`/api/search_users?${params.toString()}`)
+        .then(res => res.json())
+        .then(data => {
+          updateTable(data);
+        })
+        .catch(() => addLog("Lỗi khi tìm kiếm người dùng!"));
+    }
     // Load logs từ server 
     function loadLogs() {
       fetch('/api/logs')
@@ -226,7 +292,7 @@
             logBox.appendChild(entry); // Dùng append để giữ đúng thứ tự (cũ nhất ở trên)
           });
         })
-        .catch(() => console.error("Không thể tải logs từ server.")); // Ghi lỗi ra console
+        .catch(() => addLog("Không thể tải logs từ server.")); // <-- SỬA DÒNG NÀY (sửa từ console.error sang addLog)
     }
 
     // Thêm người dùng (Giữ nguyên)

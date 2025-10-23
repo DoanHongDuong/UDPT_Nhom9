@@ -4,6 +4,7 @@ import time
 import requests
 import json
 import os
+import re
 from tinydb import TinyDB, Query  
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from datetime import datetime
@@ -276,7 +277,32 @@ def get_users():
     """Bất kỳ node nào cũng có thể trả về dữ liệu nó đang có."""
     return jsonify(load_data()) # <-- Tự động dùng TinyDB
 
+@app.route("/api/search_users", methods=["GET"])
+def search_users():
+    """
+    Tìm kiếm user theo tên (chứa chuỗi, không phân biệt hoa thường).
+     Bất kỳ node nào (Primary/Replica) cũng có thể xử lý.
+     """
+    search_name = request.args.get('name', '')
+ 
+    if not search_name:
+        # Nếu không cung cấp tên, trả về tất cả
+         return jsonify(load_data())
+ 
+    if db is None:
+        return jsonify({"error": "Database not initialized"}), 500
 
+    User = Query()
+     
+    # 2. THỰC THI TRUY VẤN
+    try:
+        results = db.search(User.name.search(search_name, flags=re.IGNORECASE))
+        
+        write_log(f"Tìm kiếm tên: '{search_name}', tìm thấy {len(results)} kết quả.")
+        return jsonify({"users": results})
+    except Exception as e:
+        write_log(f"Lỗi khi tìm kiếm: {e}")
+        return jsonify({"error": "Lỗi máy chủ khi tìm kiếm"}), 500
 @app.route("/api/logs")
 def get_logs():
     """Bất kỳ node nào cũng trả về log của chính nó."""

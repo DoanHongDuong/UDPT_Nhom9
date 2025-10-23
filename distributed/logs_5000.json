@@ -1,96 +1,21 @@
 [
   {
-    "time": "2025-10-22 02:32:06",
-    "role": "PRIMARY",
-    "event": "Sao ch\u00e9p th\u00e0nh c\u00f4ng t\u1edbi http://127.0.0.1:5002"
-  },
-  {
-    "time": "2025-10-22 02:32:06",
-    "role": "PRIMARY",
-    "event": "Sao ch\u00e9p th\u00e0nh c\u00f4ng t\u1edbi http://127.0.0.1:5001"
-  },
-  {
-    "time": "2025-10-22 02:32:06",
-    "role": "PRIMARY",
-    "event": "B\u1eaft \u0111\u1ea7u sao ch\u00e9p d\u1eef li\u1ec7u t\u1edbi 2 replicas."
-  },
-  {
-    "time": "2025-10-22 02:32:06",
-    "role": "PRIMARY",
-    "event": "PRIMARY: \u0110\u00e3 th\u00eam ng\u01b0\u1eddi d\u00f9ng: Nhung"
-  },
-  {
-    "time": "2025-10-22 02:31:05",
-    "role": "PRIMARY",
-    "event": "Sao ch\u00e9p th\u00e0nh c\u00f4ng t\u1edbi http://127.0.0.1:5002"
-  },
-  {
-    "time": "2025-10-22 02:31:05",
-    "role": "PRIMARY",
-    "event": "Sao ch\u00e9p th\u00e0nh c\u00f4ng t\u1edbi http://127.0.0.1:5001"
-  },
-  {
-    "time": "2025-10-22 02:31:05",
-    "role": "PRIMARY",
-    "event": "B\u1eaft \u0111\u1ea7u sao ch\u00e9p d\u1eef li\u1ec7u t\u1edbi 2 replicas."
-  },
-  {
-    "time": "2025-10-22 02:31:05",
-    "role": "PRIMARY",
-    "event": "PRIMARY: \u0110\u00e3 th\u00eam ng\u01b0\u1eddi d\u00f9ng: Mai"
-  },
-  {
-    "time": "2025-10-22 02:30:49",
-    "role": "PRIMARY",
-    "event": "Cung c\u1ea5p full data (v\u1edbi t\u01b0 c\u00e1ch PRIMARY)."
-  },
-  {
-    "time": "2025-10-22 02:30:44",
-    "role": "PRIMARY",
-    "event": "Cung c\u1ea5p full data (v\u1edbi t\u01b0 c\u00e1ch PRIMARY)."
-  },
-  {
-    "time": "2025-10-22 02:30:28",
-    "role": "PRIMARY",
-    "event": "B\u1eaft \u0111\u1ea7u sao ch\u00e9p d\u1eef li\u1ec7u t\u1edbi 0 replicas."
-  },
-  {
-    "time": "2025-10-22 02:30:28",
-    "role": "PRIMARY",
-    "event": "PRIMARY: \u0110\u00e3 th\u00eam ng\u01b0\u1eddi d\u00f9ng: Thanh"
-  },
-  {
-    "time": "2025-10-22 02:29:52",
-    "role": "OFFLINE",
-    "event": "TH\u0102NG C\u1ea4P: Node n\u00e0y tr\u1edf th\u00e0nh PRIMARY."
-  },
-  {
-    "time": "2025-10-22 02:29:52",
-    "role": "OFFLINE",
-    "event": "Ch\u01b0a c\u00f3 Primary. B\u1ea7u ch\u1ecdn Primary m\u1edbi: http://127.0.0.1:5000"
-  },
-  {
-    "time": "2025-10-22 02:29:45",
-    "role": "OFFLINE",
-    "event": "Kh\u00f4ng t\u00ecm th\u1ea5y node n\u00e0o c\u00f2n s\u1ed1ng."
-  },
-  {
-    "time": "2025-10-22 02:29:42",
+    "time": "2025-10-23 23:22:47",
     "role": "REPLICA",
-    "event": "Kh\u00f4ng t\u00ecm th\u1ea5y Primary n\u00e0o. Coi m\u00ecnh l\u00e0 node \u0111\u1ea7u ti\u00ean."
+    "event": "\u0110\u1ed3ng b\u1ed9 th\u00e0nh c\u00f4ng! \u0110\u00e3 t\u1ea3i 6 users."
   },
   {
-    "time": "2025-10-22 02:29:42",
+    "time": "2025-10-23 23:22:47",
     "role": "REPLICA",
-    "event": "Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i t\u1edbi http://127.0.0.1:5002 khi t\u00ecm Primary."
+    "event": "\u0110ang t\u1ea3i d\u1eef li\u1ec7u t\u1eeb Primary http://127.0.0.1:5001..."
   },
   {
-    "time": "2025-10-22 02:29:40",
+    "time": "2025-10-23 23:22:47",
     "role": "REPLICA",
-    "event": "Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i t\u1edbi http://127.0.0.1:5001 khi t\u00ecm Primary."
+    "event": "Node http://127.0.0.1:5001 b\u00e1o Primary l\u00e0: http://127.0.0.1:5001"
   },
   {
-    "time": "2025-10-22 02:29:38",
+    "time": "2025-10-23 23:22:47",
     "role": "REPLICA",
     "event": "B\u1eaft \u0111\u1ea7u kh\u1edfi \u0111\u1ed9ng, t\u00ecm Primary \u0111\u1ec3 \u0111\u1ed3ng b\u1ed9..."
   }
