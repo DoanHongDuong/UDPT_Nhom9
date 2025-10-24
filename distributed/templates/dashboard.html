@@ -53,7 +53,6 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 15px;
-      /* Thêm khoảng cách */
     }
 
     th,
@@ -77,7 +76,18 @@
       color: white;
       border-radius: 5px;
       cursor: pointer;
+      margin: 2px;
+
     }
+
+    button.edit {
+      background-color: #ffc107;
+    }
+
+    button.cancel {
+      background-color: #6c757d;
+    }
+
 
     .search-box {
       margin-bottom: 10px;
@@ -138,7 +148,6 @@
 
     footer {
       text-align: center;
-
     }
   </style>
 </head>
@@ -167,15 +176,18 @@
         <tr>
           <th>Tên</th>
           <th>Email</th>
+          <th>ID (UUID)</th>
+          <th>Hành động</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
 
-    <h3>Thêm người dùng mới</h3>
-    <input id="name" type="text" placeholder="Tên người dùng">
+    <h3 id="formTitle">Thêm người dùng mới</h3>
+    <input id="user_id" type="hidden"> <input id="name" type="text" placeholder="Tên người dùng">
     <input id="email" type="email" placeholder="Email">
-    <button onclick="addUser()">Thêm</button>
+    <button id="btnSubmit" onclick="submitUserForm()">Thêm</button>
+    <button id="btnCancel" onclick="cancelEdit()" class="cancel" style="display:none;">Hủy</button>
   </section>
 
   <section id="logs">
@@ -185,6 +197,7 @@
   <footer>
     <p>Bài tập lớn Ứng dụng phân tán</p>
   </footer>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       refreshAll();
@@ -192,14 +205,12 @@
       // Làm mới dashboard mỗi 3 giây
       setInterval(refreshAll, 3000);
 
-      // THÊM MỚI: Thêm sự kiện nhấn Enter cho ô tìm kiếm
       document.getElementById('search_name').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
           searchUsers();
         }
       });
 
-      // Tải danh sách users lần đầu khi mở trang
       loadUsers();
     });
 
@@ -217,14 +228,12 @@
           container.innerHTML = '';
           nodes.forEach(node => {
             const div = document.createElement('div');
-
             let statusClass = node.alive ? 'node-up' : 'node-down';
             if (node.role === 'PRIMARY') {
               statusClass += ' primary';
             }
-
             div.className = statusClass;
-            div.textContent = `${node.name} (${node.role})`; // Hiển thị tên và vai trò
+            div.textContent = `${node.name} (${node.role})`;
             container.appendChild(div);
           });
         })
@@ -237,39 +246,46 @@
       if (data.users && data.users.length > 0) {
         data.users.forEach(u => {
           const row = document.createElement('tr');
-          row.innerHTML = `<td>${u.name}</td><td>${u.email}</td>`;
+
+          // Xử lý tên và email để tránh lỗi HTML nếu có dấu nháy
+          const safeName = u.name ? u.name.replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
+          const safeEmail = u.email ? u.email.replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
+
+          row.innerHTML = `
+                        <td>${u.name || 'N/A'}</td>
+                        <td>${u.email || 'N/A'}</td>
+                        <td>${u.id}</td>
+                        <td>
+                            <button class="edit" onclick="showEditForm('${u.id}', '${safeName}', '${safeEmail}')">Sửa</button>
+                            </td>
+                    `;
           tbody.appendChild(row);
         });
       } else {
-        // Hiển thị thông báo không tìm thấy
         const row = document.createElement('tr');
-        row.innerHTML = `<td colspan="2">Không tìm thấy người dùng nào.</td>`;
+        row.innerHTML = `<td colspan="4">Không tìm thấy người dùng nào.</td>`;
         tbody.appendChild(row);
       }
     }
-
-    // Load tất cả người dùng (nút "Hiện tất cả")
     function loadUsers() {
       fetch('/api/users')
         .then(res => res.json())
         .then(data => {
-          updateTable(data); // Gọi hàm helper
-          document.getElementById('search_name').value = ''; // Xóa nội dung ô tìm kiếm
+          updateTable(data);
+          document.getElementById('search_name').value = '';
+          cancelEdit(); // Đảm bảo form được reset
         })
         .catch(() => addLog("Không thể tải danh sách người dùng!"));
     }
-    // Tìm kiếm người dùng (nút "Tìm kiếm")
+
+    // Tìm kiếm người dùng
     function searchUsers() {
       const name = document.getElementById('search_name').value.trim();
       if (!name) {
-        // Nếu ô tìm kiếm rỗng, cứ tải tất cả
         loadUsers();
         return;
       }
-
-      // Tạo URL an toàn với query parameter
       const params = new URLSearchParams({ name: name });
-
       fetch(`/api/search_users?${params.toString()}`)
         .then(res => res.json())
         .then(data => {
@@ -277,25 +293,33 @@
         })
         .catch(() => addLog("Lỗi khi tìm kiếm người dùng!"));
     }
+
     // Load logs từ server 
     function loadLogs() {
       fetch('/api/logs')
         .then(res => res.json())
         .then(logs => {
           const logBox = document.getElementById('logBox');
-          logBox.innerHTML = ''; // Xóa log cũ
+          logBox.innerHTML = '';
           logs.forEach(l => {
             const entry = document.createElement('div');
             entry.className = 'log-entry';
-            // Định dạng log mới từ server python
             entry.textContent = `[${l.time}] [${l.role}] ${l.event}`;
-            logBox.appendChild(entry); // Dùng append để giữ đúng thứ tự (cũ nhất ở trên)
+            logBox.appendChild(entry);
           });
         })
-        .catch(() => addLog("Không thể tải logs từ server.")); // <-- SỬA DÒNG NÀY (sửa từ console.error sang addLog)
+        .catch(() => addLog("Không thể tải logs từ server."));
     }
 
-    // Thêm người dùng (Giữ nguyên)
+    function submitUserForm() {
+      const userId = document.getElementById('user_id').value;
+      if (userId) {
+        saveUpdate(userId);
+      } else {
+        addUser();
+      }
+    }
+
     function addUser() {
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
@@ -310,33 +334,79 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email })
       })
-        .then(res => {
-          // Kiểm tra nếu server trả về lỗi (ví dụ 503, 504)
-          if (!res.ok) {
-            // Ném lỗi để nhảy xuống .catch
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
+        .then(handleFetchResponse)
         .then(data => {
-          if (data.error) {
-            showNotification("Lỗi: " + data.error, "error");
-            addLog("Lỗi thêm người dùng: " + data.error);
-          } else {
-            showNotification("Thêm người dùng thành công!", "success");
-            addLog(`Đã thêm người dùng: ${name} (${email})`);
-            loadUsers(); // Tải lại danh sách user sau khi thêm
-            document.getElementById('name').value = '';
-            document.getElementById('email').value = '';
-          }
+          showNotification("Thêm người dùng thành công!", "success");
+          addLog(`Đã thêm người dùng: ${name} (${email})`);
+          loadUsers(); // Tự động reset form
         })
-        .catch((error) => {
-          showNotification("Không thể kết nối tới server! Vui lòng thử lại.", "error");
-          addLog("Kết nối server thất bại khi thêm người dùng. " + error.message);
-        });
+        .catch(handleFetchError);
     }
 
-    // Hiển thị thông báo (Giữ nguyên)
+    function showEditForm(id, name, email) {
+      document.getElementById('formTitle').textContent = "Cập nhật người dùng";
+      document.getElementById('user_id').value = id;
+      document.getElementById('name').value = name;
+      document.getElementById('email').value = email;
+      document.getElementById('btnSubmit').textContent = "Lưu thay đổi";
+      document.getElementById('btnCancel').style.display = 'inline-block';
+
+      // Cuộn đến form để người dùng thấy
+      document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      document.getElementById('formTitle').textContent = "Thêm người dùng mới";
+      document.getElementById('user_id').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('btnSubmit').textContent = "Thêm";
+      document.getElementById('btnCancel').style.display = 'none';
+    }
+
+    function saveUpdate(id) {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!name || !email) {
+        showNotification("Vui lòng nhập đầy đủ tên và email!", "error");
+        return;
+      }
+
+      fetch('/api/update_user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id, name: name, email: email })
+      })
+        .then(handleFetchResponse)
+        .then(data => {
+          showNotification("Cập nhật người dùng thành công!", "success");
+          addLog(`Đã cập nhật user ID: ${id}`);
+          loadUsers();
+        })
+        .catch(handleFetchError);
+    }
+
+    function handleFetchResponse(res) {
+      if (!res.ok) {
+        return res.json().then(errData => {
+          throw new Error(errData.error || `HTTP error! status: ${res.status}`);
+        }).catch(() => {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        });
+      }
+      return res.json();
+    }
+
+    // --- HELPER MỚI: Xử lý Lỗi (tránh lặp code) ---
+    function handleFetchError(error) {
+      const msg = error.message.includes("Failed to fetch") ? "Không thể kết nối tới server! Vui lòng thử lại." : error.message;
+      showNotification("Lỗi: " + msg, "error");
+      addLog("Lỗi thao tác: " + error.message);
+    }
+
+
+    // Hiển thị thông báo
     function showNotification(message, type) {
       const box = document.getElementById('notification');
       box.textContent = message;

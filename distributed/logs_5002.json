@@ -1,46 +1,56 @@
 [
   {
-    "time": "2025-10-23 23:23:38",
+    "time": "2025-10-25 00:01:09",
     "role": "REPLICA",
-    "event": "TH\u0102NG C\u1ea4P: Node n\u00e0y tr\u1edf th\u00e0nh PRIMARY."
+    "event": "Nh\u1eadn v\u00e0 L\u01afU/C\u1eacP NH\u1eacT d\u1eef li\u1ec7u sao ch\u00e9p cho: Thanh"
   },
   {
-    "time": "2025-10-23 23:23:38",
+    "time": "2025-10-25 00:00:52",
     "role": "REPLICA",
-    "event": "Primary c\u0169 http://127.0.0.1:5001 \u0111\u00e3 offline. B\u1ea7u ch\u1ecdn Primary m\u1edbi: http://127.0.0.1:5002"
+    "event": "Primary c\u0169 http://127.0.0.1:5001 \u0111\u00e3 offline. B\u1ea7u ch\u1ecdn Primary m\u1edbi: http://127.0.0.1:5000"
   },
   {
-    "time": "2025-10-23 23:22:40",
+    "time": "2025-10-24 23:59:56",
     "role": "REPLICA",
-    "event": "Nh\u1eadn v\u00e0 l\u01b0u tr\u1eef d\u1eef li\u1ec7u sao ch\u00e9p cho: B\u00e1nh biscot"
+    "event": "Nh\u1eadn v\u00e0 L\u01afU/C\u1eacP NH\u1eacT d\u1eef li\u1ec7u sao ch\u00e9p cho: Duong"
   },
   {
-    "time": "2025-10-23 23:21:46",
+    "time": "2025-10-24 23:59:56",
+    "role": "REPLICA",
+    "event": "REPLICA: Chuy\u1ec3n ti\u1ebfp /api/update_user t\u1edbi http://127.0.0.1:5001"
+  },
+  {
+    "time": "2025-10-24 23:59:43",
     "role": "REPLICA",
     "event": "Primary c\u0169 http://127.0.0.1:5000 \u0111\u00e3 offline. B\u1ea7u ch\u1ecdn Primary m\u1edbi: http://127.0.0.1:5001"
   },
   {
-    "time": "2025-10-23 23:20:32",
+    "time": "2025-10-24 23:55:56",
     "role": "REPLICA",
-    "event": "Nh\u1eadn v\u00e0 l\u01b0u tr\u1eef d\u1eef li\u1ec7u sao ch\u00e9p cho: Nam"
+    "event": "Nh\u1eadn v\u00e0 L\u01afU/C\u1eacP NH\u1eacT d\u1eef li\u1ec7u sao ch\u00e9p cho: Duong1"
   },
   {
-    "time": "2025-10-23 23:19:59",
+    "time": "2025-10-24 23:55:39",
     "role": "REPLICA",
-    "event": "\u0110\u1ed3ng b\u1ed9 th\u00e0nh c\u00f4ng! \u0110\u00e3 t\u1ea3i 4 users."
+    "event": "Nh\u1eadn v\u00e0 L\u01afU/C\u1eacP NH\u1eacT d\u1eef li\u1ec7u sao ch\u00e9p cho: Duong"
   },
   {
-    "time": "2025-10-23 23:19:59",
+    "time": "2025-10-24 23:55:18",
+    "role": "REPLICA",
+    "event": "\u0110\u1ed3ng b\u1ed9 th\u00e0nh c\u00f4ng! \u0110\u00e3 t\u1ea3i 0 users."
+  },
+  {
+    "time": "2025-10-24 23:55:18",
     "role": "REPLICA",
     "event": "\u0110ang t\u1ea3i d\u1eef li\u1ec7u t\u1eeb Primary http://127.0.0.1:5000..."
   },
   {
-    "time": "2025-10-23 23:19:59",
+    "time": "2025-10-24 23:55:18",
     "role": "REPLICA",
     "event": "Node http://127.0.0.1:5000 b\u00e1o Primary l\u00e0: http://127.0.0.1:5000"
   },
   {
-    "time": "2025-10-23 23:19:59",
+    "time": "2025-10-24 23:55:18",
     "role": "REPLICA",
     "event": "B\u1eaft \u0111\u1ea7u kh\u1edfi \u0111\u1ed9ng, t\u00ecm Primary \u0111\u1ec3 \u0111\u1ed3ng b\u1ed9..."
   }

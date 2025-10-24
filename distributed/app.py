@@ -5,7 +5,8 @@ import requests
 import json
 import os
 import re
-from tinydb import TinyDB, Query  
+import uuid
+from tinydb import TinyDB, Query
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from datetime import datetime
 
@@ -21,9 +22,9 @@ MY_PORT = 5000
 MY_URL = "http://127.0.0.1:5000"
 DATA_FILE = "users_5000.json"
 LOG_FILE = "logs_5000.json"
-db = None  
+db = None
 
-CURRENT_ROLE = "REPLICA"  
+CURRENT_ROLE = "REPLICA"
 CURRENT_PRIMARY_URL = None
 KNOWN_REPLICAS = []
 LAST_HEARTBEAT_OK = True
@@ -33,9 +34,9 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 
 
 def load_data():
-    """Đọc tất cả user từ TinyDB.""" 
+    """Đọc tất cả user từ TinyDB."""
     if db is None:
-        return {"users": []} 
+        return {"users": []}
     return {"users": db.all()}
 
 
@@ -43,12 +44,12 @@ def save_data(data):
     """
     Hàm này bây giờ CHỈ dùng để ĐỒNG BỘ TOÀN BỘ.
     Nó sẽ xóa sạch DB cũ và chèn dữ liệu mới.
-    """ 
+    """
     if db is None: return
 
     users_list = data.get("users", [])
-    db.truncate()  
-    db.insert_multiple(users_list)  
+    db.truncate()
+    db.insert_multiple(users_list)
 
 
 def write_log(event):
@@ -69,18 +70,20 @@ def write_log(event):
 
 
 def replicate_data(user_data):
-    """Chỉ Primary mới gọi hàm này. Gửi dữ liệu tới tất cả Replica đã biết."""
-    write_log(f"Bắt đầu sao chép dữ liệu tới {len(KNOWN_REPLICAS)} replicas.")
+    """
+    Chỉ Primary mới gọi hàm này. Gửi dữ liệu (cho THÊM hoặc CẬP NHẬT)
+    tới tất cả Replica đã biết.
+    """
+    write_log(f"Bắt đầu sao chép (upsert) dữ liệu tới {len(KNOWN_REPLICAS)} replicas.")
     for replica_url in KNOWN_REPLICAS:
         try:
             res = requests.post(f"{replica_url}/replica", json=user_data, timeout=2)
             if res.status_code == 200:
-                write_log(f"Sao chép thành công tới {replica_url}")
+                write_log(f"Sao chép (upsert) thành công tới {replica_url}")
             else:
-                write_log(f"Lỗi sao chép tới {replica_url}: {res.status_code}")
+                write_log(f"Lỗi sao chép (upsert) tới {replica_url}: {res.status_code}")
         except requests.exceptions.RequestException:
-            write_log(f"Không thể kết nối tới replica {replica_url} để sao chép.")
-
+            write_log(f"Không thể kết nối tới replica {replica_url} để sao chép (upsert).")
 
 def check_nodes_and_update_role():
     global CURRENT_ROLE, CURRENT_PRIMARY_URL, KNOWN_REPLICAS, LAST_HEARTBEAT_OK
@@ -109,7 +112,7 @@ def check_nodes_and_update_role():
         new_primary = CURRENT_PRIMARY_URL
     else:
         # Primary cũ đã chết HOẶC chưa có Primary -> Bầu chọn cái mới
-        new_primary = min(alive_nodes) 
+        new_primary = min(alive_nodes)
         if CURRENT_PRIMARY_URL:
             write_log(f"Primary cũ {CURRENT_PRIMARY_URL} đã offline. Bầu chọn Primary mới: {new_primary}")
         else:
@@ -163,7 +166,7 @@ def sync_with_cluster():
                     break  # Tìm thấy là đủ
         except requests.exceptions.RequestException:
             write_log(f"Không thể kết nối tới {node_url} khi tìm Primary.")
-            pass  # Node đó có thể đang offline
+            pass  
 
     # 2. Đồng bộ dữ liệu
     if found_primary:
@@ -172,9 +175,9 @@ def sync_with_cluster():
             res = requests.get(f"{found_primary}/api/full_data", timeout=5)
             if res.status_code == 200:
                 full_data = res.json()
-                save_data(full_data)  
+                save_data(full_data)
                 CURRENT_PRIMARY_URL = found_primary
-                CURRENT_ROLE = "REPLICA"  
+                CURRENT_ROLE = "REPLICA"
                 write_log(f"Đồng bộ thành công! Đã tải {len(full_data.get('users', []))} users.")
             else:
                 write_log(f"Lỗi khi tải data từ Primary {found_primary}. Status: {res.status_code}")
@@ -211,26 +214,31 @@ def health_check():
 
 @app.route("/replica", methods=["POST"])
 def receive_replica():
-    """Endpoint chỉ REPLICA mới dùng, để nhận dữ liệu từ PRIMARY."""
+    """
+    Endpoint chỉ REPLICA mới dùng, để nhận dữ liệu (THÊM/CẬP NHẬT) từ PRIMARY.
+    Sử dụng UPSERT để xử lý cả hai trường hợp.
+    """
     if CURRENT_ROLE != "REPLICA":
         return jsonify({"error": "Tôi là Primary, không nhận replica"}), 400
 
     user = request.get_json()
 
-    # --- ĐÃ SỬA ---
-    if db is None:
-        return jsonify({"error": "Database not initialized"}), 500
-    db.insert(user)  
+    if db is None or 'id' not in user:
+        write_log("Lỗi Replica: DB chưa sẵn sàng hoặc dữ liệu thiếu ID.")
+        return jsonify({"error": "Database not initialized or missing ID"}), 500
+    
+    User = Query()
+    # Dùng UPSERT: Cập nhật nếu ID tồn tại, ngược lại Thêm mới.
+    db.upsert(user, User.id == user['id'])
 
-    write_log(f"Nhận và lưu trữ dữ liệu sao chép cho: {user.get('name')}")
-    return jsonify({"message": "Replica received"}), 200
-
+    write_log(f"Nhận và LƯU/CẬP NHẬT dữ liệu sao chép cho: {user.get('name')}")
+    return jsonify({"message": "Replica upsert received"}), 200
 
 @app.route("/api/add_user", methods=["POST"])
 def add_user():
     """
-    Route 'thông minh':
-    - Nếu là PRIMARY: Tự xử lý.
+    Route 'thông minh' (Thêm user):
+    - Nếu là PRIMARY: Tự xử lý (thêm UUID, upsert, replicate).
     - Nếu là REPLICA: Chuyển tiếp (forward) request sang PRIMARY.
     """
     if CURRENT_ROLE == "PRIMARY":
@@ -240,13 +248,19 @@ def add_user():
             write_log("Dữ liệu người dùng không hợp lệ khi thêm.")
             return jsonify({"error": "Invalid user data"}), 400
 
+        user['id'] = str(uuid.uuid4())
+
+
         if db is None:
             return jsonify({"error": "Database not initialized"}), 500
-        db.insert(user)  
+        
+        User = Query()
+        # Dùng UPSERT (an toàn hơn, dù ở đây là thêm mới)
+        db.upsert(user, User.id == user['id'])
 
-        write_log(f"PRIMARY: Đã thêm người dùng: {user.get('name')}")
+        write_log(f"PRIMARY: Đã thêm người dùng: {user.get('name')} (ID: {user['id']})")
 
-        # Bắt đầu sao chép sang các replica
+        # Bắt đầu sao chép sang các replica (hàm này giờ sao chép upsert)
         replicate_data(user)
 
         return jsonify({"message": "User added by Primary and replicated!", "data": user}), 201
@@ -270,12 +284,55 @@ def add_user():
             return jsonify({"error": "Không thể kết nối tới Primary"}), 504
     else:
         return jsonify({"error": "Node đang offline"}), 503
+@app.route("/api/update_user", methods=["PUT"])
+def update_user():
+    """
+    Route 'thông minh' (Cập nhật user):
+    - Nếu là PRIMARY: Tự xử lý (upsert, replicate).
+    - Nếu là REPLICA: Chuyển tiếp (forward) request sang PRIMARY.
+    """
+    user_data = request.get_json()
+    if not user_data or 'id' not in user_data:
+        return jsonify({"error": "Missing user ID or data"}), 400
+    
+    user_id = user_data['id']
+
+    if CURRENT_ROLE == "PRIMARY":
+        if db is None:
+            return jsonify({"error": "Database not initialized"}), 500
+        
+        User = Query()
+        db.upsert(user_data, User.id == user_id)
+        
+        write_log(f"PRIMARY: Đã cập nhật user ID: {user_id}")
+        
+        replicate_data(user_data) 
+        
+        return jsonify({"message": "User updated", "data": user_data}), 200
+
+    elif CURRENT_ROLE == "REPLICA":
+        if not CURRENT_PRIMARY_URL:
+            return jsonify({"error": "Hệ thống đang bầu chọn, vui lòng thử lại sau"}), 503
+
+        write_log(f"REPLICA: Chuyển tiếp /api/update_user tới {CURRENT_PRIMARY_URL}")
+        try:
+            res = requests.put( 
+                f"{CURRENT_PRIMARY_URL}/api/update_user",
+                json=request.get_json(), 
+                timeout=3
+            )
+            return jsonify(res.json()), res.status_code
+        except requests.exceptions.RequestException:
+            return jsonify({"error": "Không thể kết nối tới Primary"}), 504
+    else:
+        return jsonify({"error": "Node đang offline"}), 503
 
 
 @app.route("/api/users")
 def get_users():
     """Bất kỳ node nào cũng có thể trả về dữ liệu nó đang có."""
-    return jsonify(load_data()) # <-- Tự động dùng TinyDB
+    return jsonify(load_data())
+
 
 @app.route("/api/search_users", methods=["GET"])
 def search_users():
@@ -284,25 +341,27 @@ def search_users():
      Bất kỳ node nào (Primary/Replica) cũng có thể xử lý.
      """
     search_name = request.args.get('name', '')
- 
+
     if not search_name:
         # Nếu không cung cấp tên, trả về tất cả
-         return jsonify(load_data())
- 
+        return jsonify(load_data())
+
     if db is None:
         return jsonify({"error": "Database not initialized"}), 500
 
     User = Query()
-     
+
     # 2. THỰC THI TRUY VẤN
     try:
         results = db.search(User.name.search(search_name, flags=re.IGNORECASE))
-        
+
         write_log(f"Tìm kiếm tên: '{search_name}', tìm thấy {len(results)} kết quả.")
         return jsonify({"users": results})
     except Exception as e:
         write_log(f"Lỗi khi tìm kiếm: {e}")
         return jsonify({"error": "Lỗi máy chủ khi tìm kiếm"}), 500
+
+
 @app.route("/api/logs")
 def get_logs():
     """Bất kỳ node nào cũng trả về log của chính nó."""
@@ -354,7 +413,7 @@ def get_system_status():
 def get_full_data():
     """Bất kỳ node nào cũng trả về dữ liệu nó đang có."""
     write_log(f"Cung cấp full data (với tư cách {CURRENT_ROLE}).")
-    return jsonify(load_data()) 
+    return jsonify(load_data())
 
 # 5. KHỞI CHẠY ỨNG DỤNG
 
@@ -380,19 +439,19 @@ if __name__ == "__main__":
     DATA_FILE = f"users_{MY_PORT}.json"
     LOG_FILE = f"logs_{MY_PORT}.json"
 
-    db = TinyDB(DATA_FILE)  # <-- ĐÃ THÊM: Khởi tạo DB
+    db = TinyDB(DATA_FILE)
 
     print(f"--- Khởi chạy Node tại {MY_URL} ---")
 
     if os.path.exists(LOG_FILE):
-        os.remove(LOG_FILE)  # Xóa log cũ thì OK
+        os.remove(LOG_FILE)  
 
     # Chạy đồng bộ TRƯỚC KHI khởi chạy heartbeat
     sync_with_cluster()
 
-    # Khởi chạy thread nền để kiểm tra "sức khỏe"
+    # Khởi chạy thread nền để kiểm tra heartbeat
     heartbeat_thread = threading.Thread(target=background_heartbeat, daemon=True)
     heartbeat_thread.start()
 
-    # Chạy Flask app
-    app.run(host='0.0.0.0', port=MY_PORT, debug=True, use_reloader=False)
+    # Chạy Flask app 
+    app.run(host='0.0.0.0', port=MY_PORT, debug=False, use_reloader=False)

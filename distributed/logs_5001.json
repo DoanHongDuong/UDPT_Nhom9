@@ -1,61 +1,21 @@
 [
   {
-    "time": "2025-10-23 23:22:47",
-    "role": "PRIMARY",
-    "event": "Cung c\u1ea5p full data (v\u1edbi t\u01b0 c\u00e1ch PRIMARY)."
-  },
-  {
-    "time": "2025-10-23 23:22:40",
-    "role": "PRIMARY",
-    "event": "Sao ch\u00e9p th\u00e0nh c\u00f4ng t\u1edbi http://127.0.0.1:5002"
-  },
-  {
-    "time": "2025-10-23 23:22:40",
-    "role": "PRIMARY",
-    "event": "B\u1eaft \u0111\u1ea7u sao ch\u00e9p d\u1eef li\u1ec7u t\u1edbi 1 replicas."
-  },
-  {
-    "time": "2025-10-23 23:22:40",
-    "role": "PRIMARY",
-    "event": "PRIMARY: \u0110\u00e3 th\u00eam ng\u01b0\u1eddi d\u00f9ng: B\u00e1nh biscot"
-  },
-  {
-    "time": "2025-10-23 23:21:58",
-    "role": "PRIMARY",
-    "event": "T\u00ecm ki\u1ebfm t\u00ean: 'Mai', t\u00ecm th\u1ea5y 1 k\u1ebft qu\u1ea3."
-  },
-  {
-    "time": "2025-10-23 23:21:48",
+    "time": "2025-10-25 00:01:17",
     "role": "REPLICA",
-    "event": "TH\u0102NG C\u1ea4P: Node n\u00e0y tr\u1edf th\u00e0nh PRIMARY."
+    "event": "\u0110\u1ed3ng b\u1ed9 th\u00e0nh c\u00f4ng! \u0110\u00e3 t\u1ea3i 2 users."
   },
   {
-    "time": "2025-10-23 23:21:48",
-    "role": "REPLICA",
-    "event": "Primary c\u0169 http://127.0.0.1:5000 \u0111\u00e3 offline. B\u1ea7u ch\u1ecdn Primary m\u1edbi: http://127.0.0.1:5001"
-  },
-  {
-    "time": "2025-10-23 23:20:32",
-    "role": "REPLICA",
-    "event": "Nh\u1eadn v\u00e0 l\u01b0u tr\u1eef d\u1eef li\u1ec7u sao ch\u00e9p cho: Nam"
-  },
-  {
-    "time": "2025-10-23 23:19:55",
-    "role": "REPLICA",
-    "event": "\u0110\u1ed3ng b\u1ed9 th\u00e0nh c\u00f4ng! \u0110\u00e3 t\u1ea3i 4 users."
-  },
-  {
-    "time": "2025-10-23 23:19:55",
+    "time": "2025-10-25 00:01:17",
     "role": "REPLICA",
     "event": "\u0110ang t\u1ea3i d\u1eef li\u1ec7u t\u1eeb Primary http://127.0.0.1:5000..."
   },
   {
-    "time": "2025-10-23 23:19:55",
+    "time": "2025-10-25 00:01:17",
     "role": "REPLICA",
     "event": "Node http://127.0.0.1:5000 b\u00e1o Primary l\u00e0: http://127.0.0.1:5000"
   },
   {
-    "time": "2025-10-23 23:19:55",
+    "time": "2025-10-25 00:01:17",
     "role": "REPLICA",
     "event": "B\u1eaft \u0111\u1ea7u kh\u1edfi \u0111\u1ed9ng, t\u00ecm Primary \u0111\u1ec3 \u0111\u1ed3ng b\u1ed9..."
   }
